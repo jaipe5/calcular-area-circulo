@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#12294d">
+  <title>Calculadora del área del círculo · JP Aula Digital</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#19314f;background:#edf3fa}
+    *{box-sizing:border-box}body{margin:0}header{background:linear-gradient(120deg,#112747,#225ea5);color:white;text-align:center;padding:34px 18px}header h1{margin:0 0 8px;font-size:clamp(1.5rem,4vw,2.3rem)}header p{margin:0;color:#dcecff}main{max-width:900px;margin:25px auto;padding:0 16px 35px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:white;border-radius:16px;padding:24px;box-shadow:0 5px 24px #142e5114}.card h2{margin:0 0 18px;font-size:1.2rem;color:#1c4e87}label{display:block;font-weight:700;margin:0 0 8px}.controls{display:flex;gap:10px}input,select{font:inherit;border:1px solid #a9bdd7;padding:12px;border-radius:10px;min-width:0}input{width:100%}select{width:92px}button{font:inherit;border:0;border-radius:10px;background:#1765bd;color:white;padding:12px 18px;font-weight:700;cursor:pointer}button:hover{background:#0b4f9a}button.secondary{background:#e6edf6;color:#17395b}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.formula{font-size:1.25rem;font-weight:800;text-align:center;background:#eef5ff;padding:15px;border-radius:10px}.result{background:#e4f8ed;border:1px solid #9fd9b4;padding:18px;border-radius:12px;margin-top:18px}.result strong{display:block;font-size:1.7rem;color:#11633d;overflow-wrap:anywhere}.result[hidden]{display:none}.error{color:#b3261e;font-weight:700;min-height:1.5em;margin:10px 0}.steps{margin-top:18px;line-height:1.8}.steps[hidden]{display:none}.drawing{text-align:center}.drawing svg{max-width:100%;height:auto}.note{color:#50677f;line-height:1.6}footer{text-align:center;color:#60718a;padding:20px;font-size:.9rem}@media(max-width:700px){.layout{grid-template-columns:1fr}.card{padding:18px}}
+  </style>
+</head>
+<body>
+<header><h1>📐 Calcula el área de un círculo</h1><p>Matemáticas · MicroApp educativa · JP Aula Digital</p></header>
+<main>
+<div class="layout">
+<section class="card">
+<h2>1. Introduce el radio</h2>
+<form id="calc" novalidate>
+<label for="radius">Radio del círculo</label>
+<div class="controls"><input id="radius" type="text" inputmode="decimal" placeholder="Ejemplo: 5" autocomplete="off" aria-describedby="error" required><select id="unit" aria-label="Unidad de longitud"><option value="cm">cm</option><option value="m">m</option><option value="mm">mm</option></select></div>
+<p class="note">Puedes utilizar coma o punto decimal. El radio es la distancia del centro a cualquier punto de la circunferencia.</p>
+<div class="actions"><button type="submit">Calcular área</button><button type="button" class="secondary" id="reset">Limpiar</button></div>
+<p id="error" class="error" role="alert"></p>
+</form>
+<div id="result" class="result" hidden aria-live="polite"><span>Área del círculo</span><strong id="value"></strong></div>
+<div id="steps" class="steps" hidden><h3>Solución paso a paso</h3><div id="explanation"></div></div>
+</section>
+<section class="card drawing">
+<h2>2. Observa la figura</h2>
+<svg viewBox="0 0 340 300" role="img" aria-label="Círculo con centro O y radio r marcado desde el centro hasta la circunferencia">
+<circle cx="170" cy="142" r="112" fill="#dbeafe" stroke="#2266b1" stroke-width="5" />
+<line x1="170" y1="142" x2="282" y2="142" stroke="#e06c3a" stroke-width="5" stroke-linecap="round" />
+<circle cx="170" cy="142" r="5" fill="#123a69" /><text x="154" y="163" font-size="18" fill="#123a69">O</text><text x="222" y="128" font-size="18" font-weight="bold" fill="#b74620">r</text><text x="170" y="286" text-anchor="middle" font-size="17" fill="#17395b">Radio = r</text>
+</svg>
+<p class="formula">A = π × r²</p>
+<p class="note">π ≈ 3,14159. El área se expresa en unidades cuadradas (cm², m² o mm²).</p>
+</section>
+</div>
+</main>
+<footer>JP Aula Digital · Recurso educativo de acceso libre</footer>
+<script>
+const form=document.getElementById('calc'),input=document.getElementById('radius'),unit=document.getElementById('unit');
+const result=document.getElementById('result'),steps=document.getElementById('steps'),error=document.getElementById('error');
+const fmt=n=>new Intl.NumberFormat('es-ES',{maximumFractionDigits:6}).format(n);
+form.addEventListener('submit',e=>{
+ e.preventDefault();error.textContent='';result.hidden=true;steps.hidden=true;
+ const raw=input.value.trim().replace(',','.');
+ const radius=Number(raw);
+ if(!raw||!Number.isFinite(radius)||radius<=0){error.textContent='Introduce un radio válido mayor que cero.';input.focus();return;}
+ const area=Math.PI*radius*radius;
+ if(!Number.isFinite(area)){error.textContent='El radio es demasiado grande para calcularlo.';return;}
+ const u=unit.value;
+ document.getElementById('value').textContent=fmt(area)+' '+u+'²';
+ document.getElementById('explanation').replaceChildren();
+ const lines=[`1. Fórmula: A = π × r²`,`2. Sustituimos el radio: A = π × (${fmt(radius)})²`,`3. Elevamos el radio al cuadrado: ${fmt(radius)}² = ${fmt(radius*radius)}`,`4. Multiplicamos por π: A ≈ ${fmt(area)} ${u}²`];
+ const container=document.getElementById('explanation');lines.forEach(line=>{const p=document.createElement('p');p.textContent=line;container.appendChild(p)});
+ result.hidden=false;steps.hidden=false;
+});
+document.getElementById('reset').addEventListener('click',()=>{form.reset();result.hidden=true;steps.hidden=true;error.textContent='';input.focus()});
+</script>
+</body>
+</html>
